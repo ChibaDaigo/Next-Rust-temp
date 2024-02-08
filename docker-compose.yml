@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   db:
     image: mysql:8.0
@@ -23,8 +22,10 @@ services:
       - 3000:3000
     volumes:
       - ./backend:/app
-      - backend-cache:/app/target
-    command: sh -c "cargo watch -x run"
+      - rust-target:/app/target
+      - cargo-cache:/usr/local/cargo/registry
+    command: /bin/sh -c "cargo watch --poll -x 'run'"
+    working_dir: /app
     environment:
       DB_HOST: db
   frontend:
@@ -39,6 +40,9 @@ services:
     ports:
       - '8000:3000'
 volumes:
-  backend-cache:
+  rust-target:
+    driver: local
+  cargo-cache:
+    driver: local
   mysql-db:
     driver: local

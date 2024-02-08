@@ -7,3 +7,7 @@ edition = "2021"
 
 [dependencies]
 actix-web="4"
+
+[[bin]]
+name = "api"
+path = "src/main.rs"
