@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: sample
+      MYSQL_PASSWORD: password
+    ports:
+      - 4306:3306
+    volumes:
+      - mysql-db:/var/lib/mysql
+  backend:
+    tty: true
+    depends_on:
+      - db
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./backend:/app
+      - backend-cache:/app/target
+    command: sh -c "cargo watch -x run"
+    environment:
+      DB_HOST: db
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/usr/src/app
+    command:  sh -c "npm install && npm run dev"
+    environment:
+      - WATCHPACK_POLLING=true
+    ports:
+      - '8000:3000'
+volumes:
+  backend-cache:
+  mysql-db:
+    driver: local
